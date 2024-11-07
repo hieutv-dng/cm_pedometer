@@ -1,7 +1,7 @@
 name: cm_pedometer
 description: "A new Flutter plugin project."
 version: 0.0.1
-homepage:
+homepage: null
 
 environment:
   sdk: ^3.5.1
@@ -10,16 +10,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  plugin_platform_interface: ^2.0.2
+  plugin_platform_interface: ^2.1.8
 
 dev_dependencies:
+  flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
 
-# For information on the generic Dart part of this file, see the
+# For information on the generic Dart part of this file, see the 
 # following page: https://dart.dev/tools/pub/pubspec
-
 # The following section is specific to Flutter packages.
 flutter:
   # This section identifies this Flutter project as a plugin project.
@@ -39,7 +38,6 @@ flutter:
         pluginClass: CMPedometerPlugin
       ios:
         pluginClass: CMPedometerPlugin
-
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -50,7 +48,6 @@ flutter:
   #
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
-
   # To add custom fonts to your plugin package, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a

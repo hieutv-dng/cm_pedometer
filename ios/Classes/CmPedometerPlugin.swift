@@ -4,32 +4,32 @@ import UIKit
 import CoreMotion
 
 public class CMPedometerPlugin: NSObject, FlutterPlugin {
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "cm_pedometer", binaryMessenger: registrar.messenger())
-    let instance = CMPedometerPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(name: "cm_pedometer", binaryMessenger: registrar.messenger())
+        let instance = CMPedometerPlugin()
+        registrar.addMethodCallDelegate(instance, channel: channel)
 
-    let stepDetectionHandler = StepDetector()
-    let stepDetectionChannel = FlutterEventChannel.init(name: "step_detection", binaryMessenger: registrar.messenger())
-    stepDetectionChannel.setStreamHandler(stepDetectionHandler)
+        let stepDetectionHandler = StepDetector()
+        let stepDetectionChannel = FlutterEventChannel.init(name: "step_detection", binaryMessenger: registrar.messenger())
+        stepDetectionChannel.setStreamHandler(stepDetectionHandler)
 
-    let stepCountHandler = StepCounter()
-    let stepCountChannel = FlutterEventChannel.init(name: "step_count", binaryMessenger: registrar.messenger())
-    stepCountChannel.setStreamHandler(stepCountHandler)
-  }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    switch call.method {
-    case "getPlatformVersion":
-      result("iOS " + UIDevice.current.systemVersion)
-    case "showAlert":
-        let alert = UIAlertController(title: "Hello", message: "I am a native alert dialog.", preferredStyle: .alert);
-        alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-        UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil);
-    default:
-      result(FlutterMethodNotImplemented)
+        let stepCountHandler = StepCounter()
+        let stepCountChannel = FlutterEventChannel.init(name: "step_count", binaryMessenger: registrar.messenger())
+        stepCountChannel.setStreamHandler(stepCountHandler)
     }
-  }
+
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        switch call.method {
+        case "getPlatformVersion":
+            result("iOS " + UIDevice.current.systemVersion)
+        case "showAlert":
+            let alert = UIAlertController(title: "Hello", message: "I am a native alert dialog.", preferredStyle: .alert);
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+            UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil);
+        default:
+            result(FlutterMethodNotImplemented)
+        }
+    }
 }
 
 /// StepDetector, handles pedestrian status streaming
@@ -89,13 +89,13 @@ public class StepCounter: NSObject, FlutterStreamHandler {
     private var running = false
     private var eventSink: FlutterEventSink?
 
-    private func handleEvent(count: Int) {
+    private func handleEvent(data: [String: Any]) {
         // If no eventSink to emit events to, do nothing (wait)
         if (eventSink == nil) {
             return
         }
         // Emit step count event to Flutter
-        eventSink!(count)
+        eventSink!(data)
     }
 
     public func onListen(withArguments arguments: Any?, eventSink: @escaping FlutterEventSink) -> FlutterError? {
@@ -111,10 +111,19 @@ public class StepCounter: NSObject, FlutterStreamHandler {
                 running = true
                 pedometer.startUpdates(from: dateOfLastReboot) {
                     pedometerData, error in
-                    guard let pedometerData = pedometerData, error == nil else { return }
+                    guard let data = pedometerData, error == nil else { return }
 
+                    let result: [String: Any] = [
+                        "numberOfSteps": data.numberOfSteps.intValue,
+                        "distance": data.distance?.doubleValue,
+                        "floorsAscended": data.floorsAscended?.intValue,
+                        "floorsDescended": data.floorsDescended?.intValue,
+                        "currentPace": data.currentPace?.doubleValue,
+                        "currentCadence": data.currentCadence?.doubleValue
+                    ].compactMapValues { $0 }
+                    
                     DispatchQueue.main.async {
-                        self.handleEvent(count: pedometerData.numberOfSteps.intValue)
+                        self.handleEvent(data: result)
                     }
                 }
             }

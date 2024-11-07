@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:cm_pedometer/cm_pedometer_data.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -22,9 +23,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late Stream<CMStepCount> _stepCountStream;
+  late Stream<CMPedometerData> _stepCountStream;
   late Stream<CMPedestrianStatus> _pedestrianStatusStream;
-  String _status = '?', _steps = '?';
+  String _status = '?';
+  CMPedometerData? _pedometerData;
 
   @override
   void initState() {
@@ -32,10 +34,10 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
   }
 
-  void onStepCount(CMStepCount event) {
-    print(event);
+  void onStepCount(CMPedometerData data) {
+    print(data);
     setState(() {
-      _steps = event.steps.toString();
+      _pedometerData = data;
     });
   }
 
@@ -57,7 +59,7 @@ class _MyAppState extends State<MyApp> {
   void onStepCountError(error) {
     print('onStepCountError: $error');
     setState(() {
-      _steps = 'Step Count not available';
+      _pedometerData = null;
     });
   }
 
@@ -79,7 +81,8 @@ class _MyAppState extends State<MyApp> {
     }
 
     _pedestrianStatusStream = CMPedometer.pedestrianStatusStream;
-    (await _pedestrianStatusStream.listen(onPedestrianStatusChanged))
+    _pedestrianStatusStream
+        .listen(onPedestrianStatusChanged)
         .onError(onPedestrianStatusError);
 
     _stepCountStream = CMPedometer.stepCountStream;
@@ -88,6 +91,13 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
   }
 
+  String get _steps => _pedometerData?.numberOfSteps.toString() ?? '?';
+  double get _distance => _pedometerData?.distance ?? 0.0;
+  int get _floorsAscended => _pedometerData?.floorsAscended ?? 0;
+  int get _floorsDescended => _pedometerData?.floorsDescended ?? 0;
+  double get _currentPace => _pedometerData?.currentPace ?? 0.0;
+  double get _currentCadence => _pedometerData?.currentCadence ?? 0.0;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -95,44 +105,71 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Pedometer Example'),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                'Steps Taken',
-                style: TextStyle(fontSize: 30),
-              ),
-              Text(
-                _steps,
-                style: const TextStyle(fontSize: 60),
-              ),
-              const Divider(
-                height: 100,
-                thickness: 0,
-                color: Colors.white,
-              ),
-              const Text(
-                'Pedestrian Status',
-                style: TextStyle(fontSize: 30),
-              ),
-              Icon(
-                _status == 'walking'
-                    ? Icons.directions_walk
-                    : _status == 'stopped'
-                        ? Icons.accessibility_new
-                        : Icons.error,
-                size: 100,
-              ),
-              Center(
-                child: Text(
-                  _status,
-                  style: _status == 'walking' || _status == 'stopped'
-                      ? const TextStyle(fontSize: 30)
-                      : const TextStyle(fontSize: 20, color: Colors.red),
+        body: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  'Pedestrian Status',
+                  style: TextStyle(fontSize: 30),
                 ),
-              )
-            ],
+                Icon(
+                  _status == 'walking'
+                      ? Icons.directions_walk
+                      : _status == 'stopped'
+                          ? Icons.accessibility_new
+                          : Icons.error,
+                  size: 100,
+                ),
+                Center(
+                  child: Text(
+                    _status,
+                    style: _status == 'walking' || _status == 'stopped'
+                        ? const TextStyle(fontSize: 30)
+                        : const TextStyle(fontSize: 20, color: Colors.red),
+                  ),
+                ),
+                const Divider(
+                  height: 30,
+                  thickness: 0,
+                  color: Colors.white,
+                ),
+                const Text(
+                  'Steps Taken',
+                  style: TextStyle(fontSize: 30),
+                ),
+                Text(
+                  _steps,
+                  style: const TextStyle(fontSize: 60),
+                ),
+                const Divider(height: 20),
+                Text(
+                  'Distance: ${(_distance / 1000).toStringAsFixed(2)} km',
+                  style: const TextStyle(fontSize: 24),
+                ),
+                const Divider(height: 20),
+                Text(
+                  'Floors: ⬆️ $_floorsAscended ⬇️ $_floorsDescended',
+                  style: const TextStyle(fontSize: 24),
+                ),
+                const Divider(height: 20),
+                Text(
+                  'Pace: ${_currentPace > 0 ? (1 / _currentPace).toStringAsFixed(2) : 0} m/s',
+                  style: const TextStyle(fontSize: 24),
+                ),
+                const Divider(height: 20),
+                Text(
+                  'Cadence: ${(_currentCadence * 60).toStringAsFixed(1)} steps/min',
+                  style: const TextStyle(fontSize: 24),
+                ),
+                const Divider(
+                  height: 100,
+                  thickness: 0,
+                  color: Colors.white,
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'dart:io' show Platform;
 
+import 'cm_pedometer_data.dart';
+
 const int _stopped = 0, _walking = 1;
 
 class CMPedometer {
@@ -63,28 +65,9 @@ class CMPedometer {
 
   /// Returns the steps taken since last system boot.
   /// Events may come with a delay.
-  static Stream<CMStepCount> get stepCountStream => _stepCountChannel
+  static Stream<CMPedometerData> get stepCountStream => _stepCountChannel
       .receiveBroadcastStream()
-      .map((event) => CMStepCount._(event));
-}
-
-/// A DTO for steps taken containing the number of steps taken.
-class CMStepCount {
-  late DateTime _timeStamp;
-  int _steps = 0;
-
-  CMStepCount._(dynamic e) {
-    _steps = e as int;
-    _timeStamp = DateTime.now();
-  }
-
-  int get steps => _steps;
-
-  DateTime get timeStamp => _timeStamp;
-
-  @override
-  String toString() =>
-      'Steps taken: $_steps at ${_timeStamp.toIso8601String()}';
+      .map((event) => CMPedometerData.fromJson(event));
 }
 
 /// A DTO for steps taken containing a detected step and its corresponding
