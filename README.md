@@ -3,8 +3,8 @@
 A Flutter plugin for accessing pedometer data and pedestrian activity on iOS and Android devices. Get step counts, check walking/running status, and verify sensor availability.
 
 <p>
-    <img src="https://github.com/hieutv-dng/cm_pedometer/blob/master/screenshots/pedometer_stopped.png?raw=true"/>
-    <img src="https://github.com/hieutv-dng/cm_pedometer/blob/master/screenshots/pedometer_walking.png?raw=true"/>
+    <img src="https://github.com/hieutv-dng/cm_pedometer/blob/master/screenshots/pedometer_stopped.png?raw=true" width="300"/>
+    <img src="https://github.com/hieutv-dng/cm_pedometer/blob/master/screenshots/pedometer_walking.png?raw=true" width="300"/>
 </p>
 
 ## Features
