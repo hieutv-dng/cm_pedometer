@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print
 
-import 'package:cm_pedometer/cm_pedometer_data.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 

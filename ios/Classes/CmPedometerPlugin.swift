@@ -26,6 +26,18 @@ public class CMPedometerPlugin: NSObject, FlutterPlugin {
             let alert = UIAlertController(title: "Hello", message: "I am a native alert dialog.", preferredStyle: .alert);
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
             UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil);
+        case "isStepCountingAvailable":
+            result(CMPedometer.isStepCountingAvailable())
+        case "isDistanceAvailable":
+            result(CMPedometer.isDistanceAvailable())
+        case "isFloorCountingAvailable":
+            result(CMPedometer.isFloorCountingAvailable())
+        case "isPaceAvailable":
+            result(CMPedometer.isPaceAvailable())
+        case "isCadenceAvailable":
+            result(CMPedometer.isCadenceAvailable())
+        case "isPedometerEventTrackingAvailable":
+            result(CMPedometer.isPedometerEventTrackingAvailable())
         default:
             result(FlutterMethodNotImplemented)
         }

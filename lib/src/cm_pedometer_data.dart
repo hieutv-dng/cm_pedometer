@@ -1,12 +1,28 @@
+/// A data class that represents pedometer measurements at a specific point in time.
+/// Contains information about steps, distance, floors, pace, and cadence.
 class CMPedometerData {
+  /// The total number of steps counted
   final int numberOfSteps;
+
+  /// The distance traveled in meters (if available)
   final double? distance;
+
+  /// The number of floors climbed up (if available)
   final int? floorsAscended;
+
+  /// The number of floors climbed down (if available)
   final int? floorsDescended;
+
+  /// Current walking/running pace in meters per second (if available)
   final double? currentPace;
+
+  /// Current stepping rate in steps per minute (if available)
   final double? currentCadence;
+
+  /// Timestamp when this measurement was created
   final DateTime timeStamp;
 
+  /// Creates a new pedometer data instance with the current timestamp
   CMPedometerData({
     required this.numberOfSteps,
     this.distance,
@@ -16,6 +32,19 @@ class CMPedometerData {
     this.currentCadence,
   }) : timeStamp = DateTime.now(); // Setting timestamp as now upon creation
 
+  /// Creates a pedometer data instance from a JSON-like map
+  ///
+  /// Expected format:
+  /// ```dart
+  /// {
+  ///   'numberOfSteps': int,
+  ///   'distance': double?,
+  ///   'floorsAscended': int?,
+  ///   'floorsDescended': int?,
+  ///   'currentPace': double?,
+  ///   'currentCadence': double?
+  /// }
+  /// ```
   CMPedometerData.fromJson(dynamic e)
       : numberOfSteps = e['numberOfSteps'] as int,
         distance = e['distance'] as double?,
