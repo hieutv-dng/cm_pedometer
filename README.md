@@ -1,6 +1,8 @@
-# Pedometer Plus
+# CMPedometer
 
 A Flutter plugin for accessing pedometer data and pedestrian activity on iOS and Android devices. Get step counts, check walking/running status, and verify sensor availability.
+
+This plugin uses CoreMotion on iOS and the Activity Recognition API on Android to provide accurate step counting and activity detection. It supports real-time updates and can track various motion metrics including steps, distance, floors climbed, pace and cadence (iOS only).
 
 <p>
     <img src="https://github.com/hieutv-dng/cm_pedometer/blob/master/screenshots/pedometer_stopped.png?raw=true" width="300"/>
@@ -13,6 +15,18 @@ A Flutter plugin for accessing pedometer data and pedestrian activity on iOS and
 - 🏃‍♀️ Pedestrian activity status (walking/running/stationary)
 - ⚡ Check sensor availability
 - 📱 Support for both iOS and Android
+
+## Feature Support
+
+| Feature             | Android | iOS |
+|---------------------|---------|-----|
+| Sensor Availability | ❌      | ✅  |
+| Pedestrian Status   | ✅      | ✅  |
+| Step Count          | ✅      | ✅  |
+| Distance            | ❌      | ✅  |
+| Floors              | ❌      | ✅  |
+| Current Pace        | ❌      | ✅  |
+| Current Cadence     | ❌      | ✅  |
 
 ## Getting Started
 
@@ -32,28 +46,47 @@ Add the following keys to your `Info.plist`:
 ```xml
 <key>NSMotionUsageDescription</key>
 <string>This app needs to access motion data for step counting</string>
-```
-
-### Installation
-
-Add this to your package's `pubspec.yaml` file:
-
-```yaml
-dependencies:
-  cm_pedometer: ^1.0.0
+<key>UIBackgroundModes</key>
+<array>
+    <string>processing</string>
+</array>
 ```
 
 ## Usage
+See the [example app](https://github.com/hieutv-dng/cm_pedometer/blob/master/example/lib/main.dart) for a fully-fledged example.
 
-### Basic Step Counter
+Below are shown basic usage examples. Remember to set the required permissions as described above. This may require you to manually allow permissions in the phone's Settings.
+
+### Permissions
+
+You can manually request permissions using [package:permission_handler](https://pub.dev/packages/permission_handler):
 
 ```dart
-import 'package:cm_pedometer/cm_pedometer.dart';
+// Request required permissions
+bool granted = await Permission.activityRecognition.request() == PermissionStatus.granted;
+```
 
-// Listen to step count updates
-CMPedometer.stepCountStream.listen((steps) {
-  print('Steps taken: $steps');
-});
+### Verify Sensor Availability
+
+```dart
+// Check if step counting is available
+bool isStepCountingAvailable = await CMPedometer.isStepCountingAvailable();
+
+// Check if distance tracking is available
+bool isDistanceAvailable = await CMPedometer.isDistanceAvailable();
+
+// Check if floor counting is available
+bool isFloorCountingAvailable = await CMPedometer.isFloorCountingAvailable();
+
+// Check if pace tracking is available
+bool isPaceAvailable = await CMPedometer.isPaceAvailable();
+
+// Check if cadence tracking is available
+bool isCadenceAvailable = await CMPedometer.isCadenceAvailable();
+
+// Check if pedometer event tracking is available
+bool isPedometerEventTrackingAvailable =
+    await CMPedometer.isPedometerEventTrackingAvailable();
 ```
 
 ### Check Pedestrian Status
@@ -62,77 +95,32 @@ CMPedometer.stepCountStream.listen((steps) {
 // Get current activity status
 CMPedometer.pedestrianStatusStream.listen((status) {
   switch (status) {
-    case PedestrianStatus.walking:
+    case 'walking':
       print('User is walking');
       break;
-    case PedestrianStatus.running:
-      print('User is running');
-      break;
-    case PedestrianStatus.stopped:
+    case 'stopped':
       print('User is stationary');
+      break;
+    default:
+      print('Unknown activity status');
       break;
   }
 });
 ```
 
-### Verify Sensor Availability
+### Basic Pedometer Data
 
 ```dart
-// Check if step counting is available
-bool isStepCountAvailable = await CMPedometer.isStepCountAvailable();
-
-// Check if pedestrian status detection is available
-bool isPedestrianStatusAvailable = await CMPedometer.isPedestrianStatusAvailable();
+// Listen to step count updates
+CMPedometer.stepCountStream.listen((data) {
+  print('Steps taken: ${data.numberOfSteps}');
+  print('Distance: ${data.distance}');
+  print('Floors ascended: ${data.floorsAscended}');
+  print('Floors descended: ${data.floorsDescended}');
+  print('Current pace: ${data.currentPace}');
+  print('Current cadence: ${data.currentCadence}');
+});
 ```
-
-### Complete Example
-
-```dart
-import 'package:cm_pedometer/cm_pedometer.dart';
-
-class PedometerExample {  
-  void initPedometer() async {
-    
-    // Check availability
-    if (await CMPedometer.isPedestrianStatusAvailable()) {
-      // Listen to activity updates
-      _pedometer.pedestrianStatusStream.listen(
-        (status) => print('Status: $status'),
-        onError: (error) => print('Status error: $error'),
-      );
-    }
-
-    if (await CMPedometer.isStepCountAvailable()) {
-      // Listen to step updates
-      _pedometer.stepCountStream.listen(
-        (steps) => print('Steps: $steps'),
-        onError: (error) => print('Step count error: $error'),
-      );
-    }
-  }
-}
-```
-
-## Permissions
-
-You can manually request permissions:
-
-```dart
-// Request required permissions
-bool granted = await CMPedometer.requestPermissions();
-```
-
-## Feature Support
-
-| Feature             | Android | iOS |
-|---------------------|---------|-----|
-| Sensor Availability | ❌      | ✅  |
-| Pedestrian Status   | ✅      | ✅  |
-| Step Count          | ✅      | ✅  |
-| Distance            | ❌      | ✅  |
-| Floors              | ❌      | ✅  |
-| Current Pace        | ❌      | ✅  |
-| Current Cadence     | ❌      | ✅  |
 
 ## Contributing
 
