@@ -37,11 +37,10 @@ Add the following permissions to your `AndroidManifest.xml`:
 
 ```xml
 <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
-<uses-permission android:name="android.permission.PHYSICAL_ACTIVITY" />
 ```
 
 #### iOS
-Add the following keys to your `Info.plist`:
+1. Add the following keys to your `Info.plist`:
 
 ```xml
 <key>NSMotionUsageDescription</key>
@@ -50,6 +49,26 @@ Add the following keys to your `Info.plist`:
 <array>
     <string>processing</string>
 </array>
+```
+
+2. In your `Podfile`, located under the `ios` folder, add this:
+
+```rb
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        flutter_additional_ios_build_settings(target)
+
+        ## ADD THIS SECTION
+        target.build_configurations.each do |config|
+            config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+            '$(inherited)',
+            ## dart: PermissionGroup.sensors
+            'PERMISSION_SENSORS=1',
+            ]
+        end
+        ## END OF WHAT YOU NEED TO ADD
+    end
+end
 ```
 
 ## Usage
@@ -121,6 +140,66 @@ CMPedometer.stepCountStream.listen((data) {
   print('Current cadence: ${data.currentCadence}');
 });
 ```
+
+### Historical Pedometer Data
+
+```dart
+// Query historical pedometer data for a specific time range
+DateTime fromDate = DateTime.now().subtract(Duration(days: 5));
+DateTime toDate = DateTime.now();
+final data = await CMPedometer.queryPedometerData(from: fromDate, to: toDate);
+print('Steps taken: ${data.numberOfSteps}');
+print('Distance: ${data.distance}');
+// ... other data fields available
+
+// Note: iOS stores up to 7 days of data, Android stores up to 10 days
+```
+
+### Stream Data From Specific Date (iOS only)
+
+```dart
+// Get continuous updates starting from a specific date
+DateTime fromDate = DateTime.now().subtract(Duration(days: 1));
+CMPedometer.stepCountStreamFrom(from: fromDate).listen((data) {
+  print('Steps taken since ${fromDate}: ${data.numberOfSteps}');
+  // Access other data fields as needed
+});
+
+// Note: This method is not supported on Android. For Android, use a combination of
+// queryPedometerData() and stepCountStream() methods.
+```
+
+## ROADMAP
+
+We are actively working to bring feature parity between iOS and Android platforms. Here are the planned improvements for Android:
+
+### Upcoming Android Features
+
+- [ ] Sensor Availability Check
+  - Implementation of proper sensor availability verification on Android
+
+- [ ] Enhanced Motion Metrics
+  - Distance tracking
+  - Floor counting
+  - Pace measurement
+  - Cadence tracking
+
+- [ ] Historical Data Access
+  - Improved historical data retention and access
+  - Better integration with Google Fit API
+
+### Timeline
+
+These features are being developed with priority given to the most requested capabilities. We welcome community contributions to help accelerate the development of these features.
+
+## Thanks and credits
+
+### This package was originally forked from:
+
+- [Pedometer](https://pub.dev/packages/pedometer) by [cachet.dk](https://pub.dev/publishers/cachet.dk/packages)
+
+***_And inspired by:_**
+- [pedometer_2](https://pub.dev/packages/pedometer_2)
 
 ## Contributing
 
