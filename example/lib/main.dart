@@ -84,7 +84,7 @@ class _MyAppState extends State<MyApp> {
         .listen(onPedestrianStatusChanged)
         .onError(onPedestrianStatusError);
 
-    _stepCountStream = CMPedometer.stepCountStream;
+    _stepCountStream = CMPedometer.stepCountStream();
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
     if (!mounted) return;

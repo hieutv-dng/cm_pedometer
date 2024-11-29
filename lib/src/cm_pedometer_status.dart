@@ -20,7 +20,11 @@ class CMPedometer {
       EventChannel('step_detection');
 
   /// The event channel for step count events.
-  static const EventChannel _stepCountChannel = EventChannel('step_count');
+  static const EventChannel _stepCounterChannel = EventChannel('step_counter');
+
+  /// The event channel for step count from events.
+  static const EventChannel _stepCounterFromChannel =
+      EventChannel('step_counter_from');
 
   /// The stream controller for Android pedestrian status events.
   static final StreamController<CMPedestrianStatus>
@@ -120,6 +124,50 @@ class CMPedometer {
     }
   }
 
+  /// Retrieves the pedometer data within a specified time range.
+  ///
+  /// The [from] parameter specifies the starting date and time of the time range.
+  /// The [to] parameter specifies the ending date and time of the time range.
+  /// If [from] is not provided, it defaults to 10 days before [to].
+  /// If [to] is not provided, it defaults to the current date and time.
+  ///
+  /// Throws an assertion error if [from] is after [to].
+  ///
+  /// In IOs the maximum number of days the system saves the step count is 7.
+  /// In Android the maximum number of days the system saves the step count is 10.
+  /// If the time range is greater than the maximum number of days for each platform,
+  /// the system will return all the steps saved (but will only represent 7/10 days).
+  ///
+  /// Example usage:
+  /// ```dart
+  /// DateTime fromDate = DateTime.now().subtract(Duration(days: 5));
+  /// DateTime toDate = DateTime.now();
+  /// final data = await CMPedometer.queryPedometerData(from: fromDate, to: toDate);
+  /// print('Step count from $fromDate to $toDate: ${data.numberOfSteps}');
+  /// ```
+  Future<CMPedometerData> queryPedometerData({
+    DateTime? from,
+    DateTime? to,
+  }) async {
+    assert(
+      from != null && to != null && from.isBefore(to),
+      'From date must be before to date',
+    );
+    try {
+      to ??= DateTime.now();
+      from ??= DateTime.now().subtract(const Duration(days: 10));
+
+      final data = await _channel
+          .invokeMethod<Map<String, dynamic>>('queryPedometerData', {
+        'from': from.millisecondsSinceEpoch,
+        'to': to.millisecondsSinceEpoch,
+      });
+      return CMPedometerData.fromJson(data);
+    } catch (e) {
+      throw ErrorSummary('Error getting step count: $e');
+    }
+  }
+
   /// Returns one step at a time.
   /// Events come every time a step is detected.
   static Stream<CMPedestrianStatus> get pedestrianStatusStream {
@@ -166,14 +214,62 @@ class CMPedometer {
     return _androidPedestrianController.stream;
   }
 
-  /// Returns the steps taken since last system boot.
-  /// Events may come with a delay.
-  static Stream<CMPedometerData> get stepCountStream => _stepCountChannel
-      .receiveBroadcastStream()
-      .map((event) => CMPedometerData.fromJson(event));
+  /// Returns a stream of the pedometer data taken since last system boot.
+  ///
+  /// The events emitted by this stream may come with a delay.
+  ///
+  /// The first time this stream is called the value of steps may be 0
+  /// and the stream won't emit any events until the user takes a step. Every event
+  /// returns the total number of steps taken since the last system boot. Not since
+  /// the listener was added.
+  ///
+  /// Example usage:
+  /// ```dart
+  /// final stepCountStream = CMPedometer.stepCountStream();
+  /// stepCountStream.listen((data) => print('Number of steps taken: ${data.numberOfSteps}'));
+  /// ```
+  static Stream<CMPedometerData> stepCountStream() {
+    try {
+      return _stepCounterChannel
+          .receiveBroadcastStream()
+          .map((event) => CMPedometerData.fromJson(event));
+    } catch (e) {
+      throw ErrorSummary('Error on StepCountStream: $e');
+    }
+  }
+
+  /// Returns a stream of pedometer data starting [from] date.
+  ///
+  /// On Android, this method is not supported. Instead, use a combination of the
+  /// [queryPedometerData()] and [stepCountStream()] methods.
+  ///
+  /// The [from] parameter specifies the starting date and time from which to retrieve
+  /// the pedometer data.
+  ///
+  /// Example usage:
+  /// ```dart
+  /// DateTime fromDate = DateTime.now().subtract(Duration(days: 5));
+  /// final dataStream = CMPedometer.stepCountStreamFrom(from: fromDate);
+  /// dataStream.listen((data) => print('Step count from $fromDate: ${data.numberOfSteps}'));
+  /// ```
+  static Stream<CMPedometerData> stepCountStreamFrom({
+    required DateTime from,
+  }) {
+    if (Platform.isAndroid) {
+      throw UnsupportedError(
+          'stepCountStreamFrom() is not supported on Android. Use a combination of "queryPedometerData()" and "stepCountStream()"');
+    }
+    try {
+      return _stepCounterFromChannel.receiveBroadcastStream({
+        'from': from.millisecondsSinceEpoch,
+      }).map((event) => CMPedometerData.fromJson(event));
+    } catch (e) {
+      throw ErrorSummary('Error on StepCountStreamFrom: $e');
+    }
+  }
 }
 
-/// A DTO for steps taken containing a detected step and its corresponding
+/// A DTO for pedometer data taken containing a detected step and its corresponding
 /// status, i.e. walking, stopped or unknown.
 class CMPedestrianStatus {
   /// The walking status.
