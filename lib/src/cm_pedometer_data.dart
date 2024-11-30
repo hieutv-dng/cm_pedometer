@@ -1,35 +1,46 @@
-/// A data class that represents pedometer measurements at a specific point in time.
-/// Contains information about steps, distance, floors, pace, and cadence.
+/// Information about the distance traveled by a user on foot.
 class CMPedometerData {
-  /// The total number of steps counted
+  /// The start time for the pedometer data. (if available)
+  final DateTime? startDate;
+
+  /// The end time for the pedometer data. (if available)
+  final DateTime? endDate;
+
+  /// The number of steps taken by the user.
   final int numberOfSteps;
 
-  /// The distance traveled in meters (if available)
+  /// The estimated distance (in meters) traveled by the user. (if available)
   final double? distance;
 
-  /// The number of floors climbed up (if available)
-  final int? floorsAscended;
+  /// The average pace of the user, measured in seconds per meter. (if available)
+  final double? averageActivePace;
 
-  /// The number of floors climbed down (if available)
-  final int? floorsDescended;
-
-  /// Current walking/running pace in meters per second (if available)
+  /// The current pace of the user, measured in seconds per meter. (if available)
   final double? currentPace;
 
-  /// Current stepping rate in steps per minute (if available)
+  /// The rate at which steps are taken, measured in steps per second. (if available)
   final double? currentCadence;
 
-  /// Timestamp when this measurement was created
+  /// The approximate number of floors ascended by walking. (if available)
+  final int? floorsAscended;
+
+  /// The approximate number of floors descended by walking. (if available)
+  final int? floorsDescended;
+
+  /// Timestamp when this measurement was created.
   final DateTime timeStamp;
 
-  /// Creates a new pedometer data instance with the current timestamp
+  /// Creates a new pedometer data instance with the current timestamp.
   CMPedometerData({
+    required this.startDate,
+    required this.endDate,
     required this.numberOfSteps,
     this.distance,
-    this.floorsAscended,
-    this.floorsDescended,
+    this.averageActivePace,
     this.currentPace,
     this.currentCadence,
+    this.floorsAscended,
+    this.floorsDescended,
   }) : timeStamp = DateTime.now(); // Setting timestamp as now upon creation
 
   /// Creates a pedometer data instance from a JSON-like map
@@ -37,30 +48,43 @@ class CMPedometerData {
   /// Expected format:
   /// ```dart
   /// {
+  ///   'startDate': int,
+  ///   'endDate': int,
   ///   'numberOfSteps': int,
   ///   'distance': double?,
+  ///   'averageActivePace': double?,
+  ///   'currentPace': double?,
+  ///   'currentCadence': double?,
   ///   'floorsAscended': int?,
   ///   'floorsDescended': int?,
-  ///   'currentPace': double?,
-  ///   'currentCadence': double?
   /// }
   /// ```
   CMPedometerData.fromJson(dynamic e)
-      : numberOfSteps = e['numberOfSteps'] as int,
+      : startDate = e['startDate'] != null
+            ? DateTime.fromMillisecondsSinceEpoch(e['startDate'] as int)
+            : null,
+        endDate = e['endDate'] != null
+            ? DateTime.fromMillisecondsSinceEpoch(e['endDate'] as int)
+            : null,
+        numberOfSteps = e['numberOfSteps'] as int,
         distance = e['distance'] as double?,
-        floorsAscended = e['floorsAscended'] as int?,
-        floorsDescended = e['floorsDescended'] as int?,
+        averageActivePace = e['averageActivePace'] as double?,
         currentPace = e['currentPace'] as double?,
         currentCadence = e['currentCadence'] as double?,
+        floorsAscended = e['floorsAscended'] as int?,
+        floorsDescended = e['floorsDescended'] as int?,
         timeStamp = DateTime.now();
 
   @override
   String toString() {
     return 'Steps taken: $numberOfSteps at ${timeStamp.toIso8601String()}'
+        ' | Start date: $startDate'
+        ' | End date: $endDate'
         ' | Distance: $distance meters'
-        ' | Floors ascended: $floorsAscended'
-        ' | Floors descended: $floorsDescended'
+        ' | Average active pace: $averageActivePace seconds/meter'
         ' | Current pace: $currentPace m/s'
-        ' | Current cadence: $currentCadence steps/min';
+        ' | Current cadence: $currentCadence steps/min'
+        ' | Floors ascended: $floorsAscended'
+        ' | Floors descended: $floorsDescended';
   }
 }

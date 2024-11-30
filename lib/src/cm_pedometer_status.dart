@@ -12,6 +12,9 @@ const int _stopped = 0, _walking = 1;
 
 /// A Flutter plugin for accessing pedometer functionality on iOS and Android devices.
 class CMPedometer {
+  /// Private constructor to prevent instantiation.
+  CMPedometer._();
+
   /// The method channel for communication with the native platform.
   static const MethodChannel _channel = MethodChannel('cm_pedometer');
 
@@ -33,7 +36,7 @@ class CMPedometer {
   /// Checks if step counting is available.
   ///
   /// Android only. Returns false on iOS or if an error occurs.
-  Future<bool> isStepCountingAvailable() async {
+  static Future<bool> isStepCountingAvailable() async {
     if (Platform.isAndroid) return false;
 
     try {
@@ -41,7 +44,7 @@ class CMPedometer {
           await _channel.invokeMethod<bool>('isStepCountingAvailable');
       return status ?? false;
     } catch (e) {
-      debugPrint('$runtimeType - Exception in isStepCountingAvailable(): $e');
+      debugPrint('Exception in isStepCountingAvailable(): $e');
       return false;
     }
   }
@@ -49,14 +52,14 @@ class CMPedometer {
   /// Checks if distance tracking is available.
   ///
   /// iOS only. Returns false on Android or if an error occurs.
-  Future<bool> isDistanceAvailable() async {
+  static Future<bool> isDistanceAvailable() async {
     if (Platform.isAndroid) return false;
 
     try {
       final status = await _channel.invokeMethod<bool>('isDistanceAvailable');
       return status ?? false;
     } catch (e) {
-      debugPrint('$runtimeType - Exception in isDistanceAvailable(): $e');
+      debugPrint('Exception in isDistanceAvailable(): $e');
       return false;
     }
   }
@@ -64,7 +67,7 @@ class CMPedometer {
   /// Checks if floor counting is available.
   ///
   /// iOS only. Returns false on Android or if an error occurs.
-  Future<bool> isFloorCountingAvailable() async {
+  static Future<bool> isFloorCountingAvailable() async {
     if (Platform.isAndroid) return false;
 
     try {
@@ -72,7 +75,7 @@ class CMPedometer {
           await _channel.invokeMethod<bool>('isFloorCountingAvailable');
       return status ?? false;
     } catch (e) {
-      debugPrint('$runtimeType - Exception in isFloorCountingAvailable(): $e');
+      debugPrint('Exception in isFloorCountingAvailable(): $e');
       return false;
     }
   }
@@ -80,14 +83,14 @@ class CMPedometer {
   /// Checks if pace tracking is available.
   ///
   /// iOS only. Returns false on Android or if an error occurs.
-  Future<bool> isPaceAvailable() async {
+  static Future<bool> isPaceAvailable() async {
     if (Platform.isAndroid) return false;
 
     try {
       final status = await _channel.invokeMethod<bool>('isPaceAvailable');
       return status ?? false;
     } catch (e) {
-      debugPrint('$runtimeType - Exception in isPaceAvailable(): $e');
+      debugPrint('Exception in isPaceAvailable(): $e');
       return false;
     }
   }
@@ -95,14 +98,14 @@ class CMPedometer {
   /// Checks if cadence tracking is available.
   ///
   /// iOS only. Returns false on Android or if an error occurs.
-  Future<bool> isCadenceAvailable() async {
+  static Future<bool> isCadenceAvailable() async {
     if (Platform.isAndroid) return false;
 
     try {
       final status = await _channel.invokeMethod<bool>('isCadenceAvailable');
       return status ?? false;
     } catch (e) {
-      debugPrint('$runtimeType - Exception in isCadenceAvailable(): $e');
+      debugPrint('Exception in isCadenceAvailable(): $e');
       return false;
     }
   }
@@ -110,7 +113,7 @@ class CMPedometer {
   /// Checks if pedometer event tracking is available.
   ///
   /// iOS only. Returns false on Android or if an error occurs.
-  Future<bool> isPedometerEventTrackingAvailable() async {
+  static Future<bool> isPedometerEventTrackingAvailable() async {
     if (Platform.isAndroid) return false;
 
     try {
@@ -118,8 +121,7 @@ class CMPedometer {
           .invokeMethod<bool>('isPedometerEventTrackingAvailable');
       return status ?? false;
     } catch (e) {
-      debugPrint(
-          '$runtimeType - Exception in isPedometerEventTrackingAvailable(): $e');
+      debugPrint('Exception in isPedometerEventTrackingAvailable(): $e');
       return false;
     }
   }
@@ -145,7 +147,7 @@ class CMPedometer {
   /// final data = await CMPedometer.queryPedometerData(from: fromDate, to: toDate);
   /// print('Step count from $fromDate to $toDate: ${data.numberOfSteps}');
   /// ```
-  Future<CMPedometerData> queryPedometerData({
+  static Future<CMPedometerData> queryPedometerData({
     DateTime? from,
     DateTime? to,
   }) async {

@@ -131,12 +131,15 @@ public class StepCounter: NSObject, FlutterStreamHandler {
                     guard let data = pedometerData, error == nil else { return }
 
                     let result: [String: Any] = [
+                        "startDate": Int64(data.startDate.timeIntervalSince1970 * 1000), // Milliseconds since epoch
+                        "endDate": Int64(data.endDate.timeIntervalSince1970 * 1000), // Milliseconds since epoch
                         "numberOfSteps": data.numberOfSteps.intValue,
                         "distance": data.distance?.doubleValue,
-                        "floorsAscended": data.floorsAscended?.intValue,
-                        "floorsDescended": data.floorsDescended?.intValue,
+                        "averageActivePace": data.averageActivePace?.doubleValue,
                         "currentPace": data.currentPace?.doubleValue,
-                        "currentCadence": data.currentCadence?.doubleValue
+                        "currentCadence": data.currentCadence?.doubleValue,
+                        "floorsAscended": data.floorsAscended?.intValue,
+                        "floorsDescended": data.floorsDescended?.intValue
                     ].compactMapValues { $0 }
                     
                     DispatchQueue.main.async {
@@ -195,12 +198,15 @@ public class StepCounterFrom: NSObject, FlutterStreamHandler {
                     pedometerData, error in
                     guard let data = pedometerData, error == nil else { return }
                     let result: [String: Any] = [
+                        "startDate": Int64(data.startDate.timeIntervalSince1970 * 1000), // Milliseconds since epoch
+                        "endDate": Int64(data.endDate.timeIntervalSince1970 * 1000), // Milliseconds since epoch
                         "numberOfSteps": data.numberOfSteps.intValue,
                         "distance": data.distance?.doubleValue,
-                        "floorsAscended": data.floorsAscended?.intValue,
-                        "floorsDescended": data.floorsDescended?.intValue,
+                        "averageActivePace": data.averageActivePace?.doubleValue,
                         "currentPace": data.currentPace?.doubleValue,
-                        "currentCadence": data.currentCadence?.doubleValue
+                        "currentCadence": data.currentCadence?.doubleValue,
+                        "floorsAscended": data.floorsAscended?.intValue,
+                        "floorsDescended": data.floorsDescended?.intValue
                     ].compactMapValues { $0 }
                     DispatchQueue.main.async {
                         self.handleEvent(data: result)
@@ -251,12 +257,15 @@ public class StepCount: NSObject {
                     return
                 }
                 let result: [String: Any] = [
+                    "startDate": Int64(data.startDate.timeIntervalSince1970 * 1000), // Milliseconds since epoch
+                    "endDate": Int64(data.endDate.timeIntervalSince1970 * 1000), // Milliseconds since epoch
                     "numberOfSteps": data.numberOfSteps.intValue,
                     "distance": data.distance?.doubleValue,
-                    "floorsAscended": data.floorsAscended?.intValue,
-                    "floorsDescended": data.floorsDescended?.intValue,
+                    "averageActivePace": data.averageActivePace?.doubleValue,
                     "currentPace": data.currentPace?.doubleValue,
-                    "currentCadence": data.currentCadence?.doubleValue
+                    "currentCadence": data.currentCadence?.doubleValue,
+                    "floorsAscended": data.floorsAscended?.intValue,
+                    "floorsDescended": data.floorsDescended?.intValue
                 ].compactMapValues { $0 }
                 channelResult(result)
             } else {
