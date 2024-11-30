@@ -119,11 +119,11 @@ public class StepCounter: NSObject, FlutterStreamHandler {
                 eventSink(FlutterError(code: "3", message: "Step Count is not available", details: nil))
             } else if (!running) {
                 let arguments = arguments as? NSDictionary
-                let startTime = arguments?["startTime"] as? NSNumber
+                let startDate = arguments?["startDate"] as? NSNumber
                 let systemUptime = ProcessInfo.processInfo.systemUptime;
                 let timeNow = Date().timeIntervalSince1970
                 let dateOfLastReboot = Date(timeIntervalSince1970: timeNow - systemUptime)
-                let dateFrom = startTime != nil ? Date(timeIntervalSince1970: startTime!.doubleValue / 1000) : dateOfLastReboot 
+                let dateFrom = startDate != nil ? Date(timeIntervalSince1970: startDate!.doubleValue / 1000) : dateOfLastReboot
                 running = true
                 pedometer.startUpdates(from: dateFrom) {
                     pedometerData, error in

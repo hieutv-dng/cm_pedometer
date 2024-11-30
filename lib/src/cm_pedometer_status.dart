@@ -243,7 +243,7 @@ class CMPedometer {
     try {
       return _stepCounterChannel
           .receiveBroadcastStream(
-            from != null ? {'from': from.millisecondsSinceEpoch} : {},
+            from != null ? {'startDate': from.millisecondsSinceEpoch} : {},
           )
           .map((event) => CMPedometerData.fromJson(event));
     } catch (e) {
