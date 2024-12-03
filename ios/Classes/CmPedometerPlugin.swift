@@ -13,9 +13,17 @@ public class CMPedometerPlugin: NSObject, FlutterPlugin {
         let stepDetectionChannel = FlutterEventChannel.init(name: "step_detection", binaryMessenger: registrar.messenger())
         stepDetectionChannel.setStreamHandler(stepDetectionHandler)
 
-        let stepCounterHandler = StepCounter()
-        let stepCounterChannel = FlutterEventChannel.init(name: "step_counter", binaryMessenger: registrar.messenger())
-        stepCounterChannel.setStreamHandler(stepCounterHandler)
+        let stepCounterFirstHandler = StepCounter()
+        let stepCounterFirstChannel = FlutterEventChannel.init(name: "step_counter_first", binaryMessenger: registrar.messenger())
+        stepCounterFirstChannel.setStreamHandler(stepCounterFirstHandler)
+
+        let stepCounterSecondHandler = StepCounter()
+        let stepCounterSecondChannel = FlutterEventChannel.init(name: "step_counter_second", binaryMessenger: registrar.messenger())
+        stepCounterSecondChannel.setStreamHandler(stepCounterSecondHandler)
+
+        let stepCounterThirdHandler = StepCounter()
+        let stepCounterThirdChannel = FlutterEventChannel.init(name: "step_counter_third", binaryMessenger: registrar.messenger())
+        stepCounterThirdChannel.setStreamHandler(stepCounterThirdHandler)
     }
 
     private let stepCount = StepCount()

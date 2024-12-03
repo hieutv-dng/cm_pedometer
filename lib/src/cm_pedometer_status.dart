@@ -22,8 +22,17 @@ class CMPedometer {
   static const EventChannel _stepDetectionChannel =
       EventChannel('step_detection');
 
-  /// The event channel for step count events.
-  static const EventChannel _stepCounterChannel = EventChannel('step_counter');
+  /// The first event channel for step count events.
+  static const EventChannel _stepCounterFirstChannel =
+      EventChannel('step_counter_first');
+
+  /// The second event channel for step count events.
+  static const EventChannel _stepCounterSecondChannel =
+      EventChannel('step_counter_second');
+
+  /// The third event channel for step count events.
+  static const EventChannel _stepCounterThirdChannel =
+      EventChannel('step_counter_third');
 
   /// The stream controller for Android pedestrian status events.
   static final StreamController<CMPedestrianStatus>
@@ -212,6 +221,7 @@ class CMPedometer {
     return _androidPedestrianController.stream;
   }
 
+  /// {@template cm_pedometer.stepCounterFirstStream}
   /// Returns a stream of the pedometer data starting [from] date.
   /// If [from] is null, data taken since the last system boot will be returned.
   ///
@@ -224,30 +234,61 @@ class CMPedometer {
   /// Example usage:
   /// ```dart
   /// // Example with starting date as now
-  /// final stepCountStream = CMPedometer.stepCountStream(from: DateTime.now());
+  /// final stepCountStream = CMPedometer.stepCounterFirstStream(from: DateTime.now());
   /// stepCountStream.listen((data) => print('Number of steps taken: ${data.numberOfSteps}'));
   ///
   /// // Example with no starting date then the stream will return the number of steps
   /// // since the last system boot
-  /// final stepCountStreamFromBoot = CMPedometer.stepCountStream();
+  /// final stepCountStreamFromBoot = CMPedometer.stepCounterFirstStream();
   /// stepCountStreamFromBoot.listen((data) => print('Steps since last boot: ${data.numberOfSteps}'));
   ///
   /// // Example with a specific date
   /// final specificDate = DateTime(2023, 1, 1);
-  /// final stepCountStreamFromSpecificDate = CMPedometer.stepCountStream(from: specificDate);
+  /// final stepCountStreamFromSpecificDate = CMPedometer.stepCounterFirstStream(from: specificDate);
   /// stepCountStreamFromSpecificDate.listen((data) => print('Steps since $specificDate: ${data.numberOfSteps}'));
   /// ```
-  static Stream<CMPedometerData> stepCountStream({
+  /// {@endtemplate}
+  static Stream<CMPedometerData> stepCounterFirstStream({
     DateTime? from,
   }) {
     try {
-      return _stepCounterChannel
+      return _stepCounterFirstChannel
           .receiveBroadcastStream(
             from != null ? {'startDate': from.millisecondsSinceEpoch} : {},
           )
           .map((event) => CMPedometerData.fromJson(event));
     } catch (e) {
-      throw ErrorSummary('Error on StepCountStream: $e');
+      throw ErrorSummary('Error on stepCounterFirstStream: $e');
+    }
+  }
+
+  /// {@macro cm_pedometer.stepCounterFirstStream}
+  static Stream<CMPedometerData> stepCounterSecondStream({
+    DateTime? from,
+  }) {
+    try {
+      return _stepCounterSecondChannel
+          .receiveBroadcastStream(
+            from != null ? {'startDate': from.millisecondsSinceEpoch} : {},
+          )
+          .map((event) => CMPedometerData.fromJson(event));
+    } catch (e) {
+      throw ErrorSummary('Error on stepCounterSecondStream: $e');
+    }
+  }
+
+  /// {@macro cm_pedometer.stepCounterFirstStream}
+  static Stream<CMPedometerData> stepCounterThirdStream({
+    DateTime? from,
+  }) {
+    try {
+      return _stepCounterThirdChannel
+          .receiveBroadcastStream(
+            from != null ? {'startDate': from.millisecondsSinceEpoch} : {},
+          )
+          .map((event) => CMPedometerData.fromJson(event));
+    } catch (e) {
+      throw ErrorSummary('Error on stepCounterThirdStream: $e');
     }
   }
 }
