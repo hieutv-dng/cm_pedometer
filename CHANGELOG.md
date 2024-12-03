@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.1
+## 1.2.0
 
 * Add `startDate` and `endDate` fields to `CMPedometerData`.
 * Add `averageActivePace` field to `CMPedometerData`.

@@ -1,6 +1,6 @@
 name: cm_pedometer
 description: A Flutter plugin for accessing pedometer functionality on iOS and Android devices.
-version: 1.2.1
+version: 1.2.0
 homepage: https://github.com/hieutv-dng/cm_pedometer
 
 environment:
