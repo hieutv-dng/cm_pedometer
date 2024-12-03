@@ -24,9 +24,10 @@ This plugin uses CoreMotion on iOS and the Activity Recognition API on Android t
 | Pedestrian Status   | ✅      | ✅  |
 | Step Count          | ✅      | ✅  |
 | Distance            | ❌      | ✅  |
-| Floors              | ❌      | ✅  |
+| Average Active Pace | ❌      | ✅  |
 | Current Pace        | ❌      | ✅  |
 | Current Cadence     | ❌      | ✅  |
+| Floors              | ❌      | ✅  |
 
 ## Getting Started
 
@@ -127,17 +128,31 @@ CMPedometer.pedestrianStatusStream.listen((status) {
 });
 ```
 
-### Basic Pedometer Data
+### Listen to Pedometer Data Updates
+
+You can use `stepCounterFirstStream`, `stepCounterSecondStream`, or `stepCounterThirdStream` to listen to step count updates starting from a specific time.
+
+If no start time is provided, it will default to the time of the last system boot.
+
+Since you cannot listen to the same stream twice, you need to call `stepCounterFirstStream`, `stepCounterSecondStream`, or `stepCounterThirdStream` separately if you want to listen to multiple streams simultaneously.
 
 ```dart
-// Listen to step count updates
-CMPedometer.stepCountStream.listen((data) {
+// Listen to step count updates since the last system boot
+CMPedometer.stepCounterFirstStream().listen((data) {
+  print('Start date: ${data.startDate}');
+  print('End date: ${data.endDate}');
   print('Steps taken: ${data.numberOfSteps}');
   print('Distance: ${data.distance}');
-  print('Floors ascended: ${data.floorsAscended}');
-  print('Floors descended: ${data.floorsDescended}');
+  print('Average active pace: ${data.averageActivePace}');
   print('Current pace: ${data.currentPace}');
   print('Current cadence: ${data.currentCadence}');
+  print('Floors ascended: ${data.floorsAscended}');
+  print('Floors descended: ${data.floorsDescended}');
+});
+
+// Example with a specific date range
+CMPedometer.stepCounterFirstStream(from: DateTime.now()).listen((data) {
+  print('Steps taken from $fromDate: ${data.numberOfSteps}');
 });
 ```
 
@@ -153,20 +168,6 @@ print('Distance: ${data.distance}');
 // ... other data fields available
 
 // Note: iOS stores up to 7 days of data, Android stores up to 10 days
-```
-
-### Stream Data From Specific Date (iOS only)
-
-```dart
-// Get continuous updates starting from a specific date
-DateTime fromDate = DateTime.now().subtract(Duration(days: 1));
-CMPedometer.stepCountStreamFrom(from: fromDate).listen((data) {
-  print('Steps taken since ${fromDate}: ${data.numberOfSteps}');
-  // Access other data fields as needed
-});
-
-// Note: This method is not supported on Android. For Android, use a combination of
-// queryPedometerData() and stepCountStream() methods.
 ```
 
 ## ROADMAP
